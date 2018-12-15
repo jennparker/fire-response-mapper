@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Fire Response Mapper</string>
+    <string name="title_activity_maps">Map</string>
+
+    <string name="GOOGLE_MAPS_API_KEY">YOUR_KEY_HERE</string>
+
+</resources>
