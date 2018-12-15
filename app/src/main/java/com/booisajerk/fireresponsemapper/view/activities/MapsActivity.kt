@@ -3,9 +3,7 @@ package com.booisajerk.fireresponsemapper.view.activities
 import android.content.pm.PackageManager
 import android.location.Location
 import android.os.Bundle
-import android.provider.SyncStateContract
 import android.support.v4.app.ActivityCompat
-import android.support.v7.app.AppCompatActivity
 import com.booisajerk.fireresponsemapper.R
 import com.booisajerk.fireresponsemapper.utils.DEFAULT_ZOOM
 import com.booisajerk.fireresponsemapper.utils.LOCATION_PERMISSION_REQUEST_CODE
@@ -19,7 +17,7 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 
-class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarkerClickListener {
+class MapsActivity : BaseActivity(), OnMapReadyCallback, GoogleMap.OnMarkerClickListener {
     override fun onMarkerClick(p0: Marker?) = false
 
     private lateinit var map: GoogleMap
@@ -29,7 +27,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_maps)
-        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
+
         val mapFragment = supportFragmentManager
             .findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
