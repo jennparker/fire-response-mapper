@@ -5,8 +5,24 @@ import android.support.v7.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
 import com.booisajerk.fireresponsemapper.R
+import rx.subscriptions.CompositeSubscription
 
 abstract class BaseActivity : AppCompatActivity() {
+
+    var subscriptions = CompositeSubscription()
+
+    override fun onResume() {
+        super.onResume()
+        subscriptions = CompositeSubscription()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        if (!subscriptions.isUnsubscribed) {
+            subscriptions.unsubscribe()
+        }
+        subscriptions.clear()
+    }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.list, menu)
