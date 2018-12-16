@@ -5,10 +5,13 @@ import android.support.design.widget.NavigationView
 import android.support.design.widget.Snackbar
 import android.support.v4.view.GravityCompat
 import android.support.v7.app.ActionBarDrawerToggle
+import android.support.v7.widget.LinearLayoutManager
 import android.view.MenuItem
 import com.booisajerk.fireresponsemapper.R
+import com.booisajerk.fireresponsemapper.view.adapters.IncidentAdapter
 import kotlinx.android.synthetic.main.activity_list.*
 import kotlinx.android.synthetic.main.app_bar_list.*
+import kotlinx.android.synthetic.main.content_list.*
 
 class ListActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedListener {
 
@@ -16,6 +19,11 @@ class ListActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_list)
         setSupportActionBar(toolbar)
+
+        recycler_view.setHasFixedSize(true)
+        recycler_view.layoutManager = LinearLayoutManager(this)
+
+        initAdapter()
 
         fab.setOnClickListener { view ->
             Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
@@ -64,5 +72,12 @@ class ListActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
 
         drawer_layout.closeDrawer(GravityCompat.START)
         return true
+    }
+
+    fun initAdapter() {
+        if(recycler_view.adapter == null) {
+            recycler_view.adapter = IncidentAdapter()
+
+        }
     }
 }
