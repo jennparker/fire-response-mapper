@@ -7,18 +7,23 @@ import android.support.v7.app.ActionBarDrawerToggle
 import android.support.v7.widget.LinearLayoutManager
 import android.view.MenuItem
 import com.booisajerk.fireresponsemapper.R
-import com.booisajerk.fireresponsemapper.presenter.IncidentPresenter
+import com.booisajerk.fireresponsemapper.network.IncidentInterface
 import com.booisajerk.fireresponsemapper.view.adapters.IncidentAdapter
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.Disposable
+import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_list.*
 import kotlinx.android.synthetic.main.app_bar_list.*
 import kotlinx.android.synthetic.main.content_list.*
-import rx.android.schedulers.AndroidSchedulers
-import rx.schedulers.Schedulers
 
 class ListActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedListener {
 
     val incidentAdapter = IncidentAdapter()
-    val incidentPresenter = IncidentPresenter()
+    private var disposable: Disposable? = null
+
+    private val incidentInterface by lazy {
+        IncidentInterface.create()
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -37,19 +42,21 @@ class ListActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         toggle.syncState()
 
         nav_view.setNavigationItemSelectedListener(this)
+
+        requestIncidents()
     }
 
-    private fun requestIncidents(){
-        val subscription = incidentPresenter.getIncidents()
+    private fun requestIncidents() {
+        disposable = incidentInterface.getIncidents(25)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribe ({ retrievedIncidents ->
-                (recycler_view.adapter as IncidentAdapter).setDataSource(retrievedIncidents)
-            },
-                {e ->
+            .subscribe(
+                { retrievedIncidents ->
+                    (recycler_view.adapter as IncidentAdapter).setDataSource(retrievedIncidents)
+                },
+                { e ->
                     e.printStackTrace()
                 })
-        subscriptions.add(subscription)
     }
 
     override fun onBackPressed() {
@@ -90,7 +97,6 @@ class ListActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
     fun initAdapter() {
         if (recycler_view.adapter == null) {
             recycler_view.adapter = incidentAdapter
-
         }
     }
 }
