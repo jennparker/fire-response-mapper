@@ -6,7 +6,7 @@ object Model {
         val datetime: String,
         val incident_number: String,
         val address: String,
-        val latitude: String,
-        val longiturde: String
+        val latitude: Double,
+        val longitude: Double
     )
 }
