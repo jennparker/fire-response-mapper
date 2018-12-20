@@ -6,11 +6,11 @@ import android.os.Bundle
 import android.support.v4.app.ActivityCompat
 import com.booisajerk.fireresponsemapper.R
 import com.booisajerk.fireresponsemapper.model.Model
-import com.booisajerk.fireresponsemapper.presenter.IncidentPresenter
+import com.booisajerk.fireresponsemapper.presenter.MapPresenter
 import com.booisajerk.fireresponsemapper.utils.DEFAULT_ZOOM
 import com.booisajerk.fireresponsemapper.utils.LOCATION_PERMISSION_REQUEST_CODE
 import com.booisajerk.fireresponsemapper.utils.SEATTLE_LOCATION
-import com.booisajerk.fireresponsemapper.view.interfaces.IncidentView
+import com.booisajerk.fireresponsemapper.view.interfaces.MapInterface
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -21,12 +21,12 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 
-class MapsActivity : BaseActivity(), IncidentView, OnMapReadyCallback, GoogleMap.OnMarkerClickListener {
+class MapsActivity : BaseActivity(), MapInterface, OnMapReadyCallback, GoogleMap.OnMarkerClickListener {
 
     private lateinit var map: GoogleMap
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private lateinit var lastLocation: Location
-    private val incidentPresenter = IncidentPresenter()
+    private val mapPresenter = MapPresenter()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -37,8 +37,8 @@ class MapsActivity : BaseActivity(), IncidentView, OnMapReadyCallback, GoogleMap
         mapFragment.getMapAsync(this)
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
-        incidentPresenter.onViewCreated(this)
-        incidentPresenter.requestIncidents()
+        mapPresenter.onViewCreated(this)
+        mapPresenter.requestIncidents()
     }
 
     override fun onMapReady(googleMap: GoogleMap) {

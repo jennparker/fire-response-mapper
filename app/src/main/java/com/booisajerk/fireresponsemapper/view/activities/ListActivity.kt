@@ -6,19 +6,25 @@ import android.support.v4.view.GravityCompat
 import android.support.v7.app.ActionBarDrawerToggle
 import android.support.v7.widget.LinearLayoutManager
 import android.view.MenuItem
+import android.view.View
+import android.widget.ProgressBar
 import com.booisajerk.fireresponsemapper.R
 import com.booisajerk.fireresponsemapper.model.Model
-import com.booisajerk.fireresponsemapper.presenter.IncidentPresenter
+import com.booisajerk.fireresponsemapper.presenter.ListPresenter
 import com.booisajerk.fireresponsemapper.view.adapters.IncidentAdapter
-import com.booisajerk.fireresponsemapper.view.interfaces.IncidentView
+import com.booisajerk.fireresponsemapper.view.interfaces.ListInterface
 import kotlinx.android.synthetic.main.activity_list.*
 import kotlinx.android.synthetic.main.app_bar_list.*
 import kotlinx.android.synthetic.main.content_list.*
 
-class ListActivity : BaseActivity(), IncidentView, NavigationView.OnNavigationItemSelectedListener {
+class ListActivity : BaseActivity(), ListInterface, NavigationView.OnNavigationItemSelectedListener {
 
     private val incidentAdapter = IncidentAdapter()
-    private val incidentPresenter = IncidentPresenter()
+    private val listPresenter = ListPresenter()
+
+    private val progressBar: ProgressBar by lazy {
+        findViewById<ProgressBar>(R.id.progress_bar)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -38,16 +44,25 @@ class ListActivity : BaseActivity(), IncidentView, NavigationView.OnNavigationIt
 
         nav_view.setNavigationItemSelectedListener(this)
 
-        incidentPresenter.onViewCreated(this)
-        incidentPresenter.requestIncidents()
+        listPresenter.onViewCreated(this)
+        listPresenter.requestIncidents()
     }
 
     override fun onIncidentsLoaded(incidents: List<Model.Incident>) {
         incidentAdapter.setDataSource(incidents)
+        hideLoading()
     }
 
     override fun onError(throwable: Throwable?) {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+    override fun hideLoading() {
+        progressBar.visibility = View.GONE
+    }
+
+    override fun showLoading() {
+        progressBar.visibility = View.VISIBLE
     }
 
     override fun onBackPressed() {
