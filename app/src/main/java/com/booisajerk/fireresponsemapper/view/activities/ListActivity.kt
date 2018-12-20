@@ -7,23 +7,18 @@ import android.support.v7.app.ActionBarDrawerToggle
 import android.support.v7.widget.LinearLayoutManager
 import android.view.MenuItem
 import com.booisajerk.fireresponsemapper.R
-import com.booisajerk.fireresponsemapper.network.IncidentInterface
+import com.booisajerk.fireresponsemapper.model.Model
+import com.booisajerk.fireresponsemapper.presenter.IncidentPresenter
 import com.booisajerk.fireresponsemapper.view.adapters.IncidentAdapter
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.Disposable
-import io.reactivex.schedulers.Schedulers
+import com.booisajerk.fireresponsemapper.view.interfaces.IncidentView
 import kotlinx.android.synthetic.main.activity_list.*
 import kotlinx.android.synthetic.main.app_bar_list.*
 import kotlinx.android.synthetic.main.content_list.*
 
-class ListActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedListener {
+class ListActivity : BaseActivity(), IncidentView, NavigationView.OnNavigationItemSelectedListener {
 
-    val incidentAdapter = IncidentAdapter()
-    private var disposable: Disposable? = null
-
-    private val incidentInterface by lazy {
-        IncidentInterface.create()
-    }
+    private val incidentAdapter = IncidentAdapter()
+    private val incidentPresenter = IncidentPresenter()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -43,20 +38,16 @@ class ListActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
 
         nav_view.setNavigationItemSelectedListener(this)
 
-        requestIncidents()
+        incidentPresenter.onViewCreated(this)
+        incidentPresenter.requestIncidents()
     }
 
-    private fun requestIncidents() {
-        disposable = incidentInterface.getIncidents(25)
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(
-                { retrievedIncidents ->
-                    (recycler_view.adapter as IncidentAdapter).setDataSource(retrievedIncidents)
-                },
-                { e ->
-                    e.printStackTrace()
-                })
+    override fun onIncidentsLoaded(incidents: List<Model.Incident>) {
+        incidentAdapter.setDataSource(incidents)
+    }
+
+    override fun onError(throwable: Throwable?) {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
     override fun onBackPressed() {

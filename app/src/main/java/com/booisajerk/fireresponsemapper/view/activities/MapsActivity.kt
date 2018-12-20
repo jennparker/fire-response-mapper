@@ -6,10 +6,11 @@ import android.os.Bundle
 import android.support.v4.app.ActivityCompat
 import com.booisajerk.fireresponsemapper.R
 import com.booisajerk.fireresponsemapper.model.Model
-import com.booisajerk.fireresponsemapper.network.IncidentInterface
+import com.booisajerk.fireresponsemapper.presenter.IncidentPresenter
 import com.booisajerk.fireresponsemapper.utils.DEFAULT_ZOOM
 import com.booisajerk.fireresponsemapper.utils.LOCATION_PERMISSION_REQUEST_CODE
 import com.booisajerk.fireresponsemapper.utils.SEATTLE_LOCATION
+import com.booisajerk.fireresponsemapper.view.interfaces.IncidentView
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -19,25 +20,13 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.Disposable
-import io.reactivex.schedulers.Schedulers
 
-
-class MapsActivity : BaseActivity(), OnMapReadyCallback, GoogleMap.OnMarkerClickListener {
-    override fun onMarkerClick(p0: Marker?) = false
+class MapsActivity : BaseActivity(), IncidentView, OnMapReadyCallback, GoogleMap.OnMarkerClickListener {
 
     private lateinit var map: GoogleMap
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private lateinit var lastLocation: Location
-
-    private var incidentList: List<Model.Incident> = emptyList()
-
-    private var disposable: Disposable? = null
-
-    private val incidentInterface by lazy {
-        IncidentInterface.create()
-    }
+    private val incidentPresenter = IncidentPresenter()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -48,7 +37,8 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback, GoogleMap.OnMarkerClick
         mapFragment.getMapAsync(this)
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
-        requestIncidents()
+        incidentPresenter.onViewCreated(this)
+        incidentPresenter.requestIncidents()
     }
 
     override fun onMapReady(googleMap: GoogleMap) {
@@ -59,6 +49,8 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback, GoogleMap.OnMarkerClick
 
         setUpMap()
     }
+
+    override fun onMarkerClick(p0: Marker?) = false
 
     private fun setUpMap() {
         if (ActivityCompat.checkSelfPermission(
@@ -87,23 +79,18 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback, GoogleMap.OnMarkerClick
         }
     }
 
-    private fun requestIncidents() {
-        disposable = incidentInterface.getIncidents(25)
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(
-                { retrievedIncidents ->
-                    for (loc in retrievedIncidents) {
-                        map.addMarker(
-                            MarkerOptions()
-                                .position(LatLng(loc.latitude, loc.longitude))
-                                .title(loc.type)
-                                .snippet(loc.address)
-                        )
-                    }
-                },
-                { e ->
-                    e.printStackTrace()
-                })
+    override fun onIncidentsLoaded(incidents: List<Model.Incident>) {
+        for (loc in incidents) {
+            map.addMarker(
+                MarkerOptions()
+                    .position(LatLng(loc.latitude, loc.longitude))
+                    .title(loc.type)
+                    .snippet(loc.address)
+            )
+        }
+    }
+
+    override fun onError(throwable: Throwable?) {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 }

@@ -8,7 +8,7 @@ import retrofit2.converter.moshi.MoshiConverterFactory
 import retrofit2.http.GET
 import retrofit2.http.Query
 
-interface IncidentInterface {
+interface IncidentAPI {
 
     @GET("grwu-wqtk.json")
     fun getIncidents(
@@ -16,14 +16,14 @@ interface IncidentInterface {
     ): Observable<List<Model.Incident>>
 
     companion object {
-        fun create(): IncidentInterface {
+        fun create(): IncidentAPI {
             val retrofit = retrofit2.Retrofit.Builder()
                 .baseUrl(BASE_URL)
                 .addConverterFactory(MoshiConverterFactory.create())
                 .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                 .build()
 
-            return retrofit.create(IncidentInterface::class.java)
+            return retrofit.create(IncidentAPI::class.java)
         }
     }
 }
